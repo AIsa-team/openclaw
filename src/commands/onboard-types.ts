@@ -77,6 +77,7 @@ export type BuiltInAuthChoiceGroupId =
   | "huggingface"
   | "qianfan"
   | "modelstudio"
+  | "aisa"
   | "xai"
   | "volcengine"
   | "byteplus"

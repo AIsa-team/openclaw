@@ -483,6 +483,18 @@ export async function setHuggingfaceApiKey(
   });
 }
 
+export function setAisaApiKey(
+  key: SecretInput,
+  agentDir?: string,
+  options?: ApiKeyStorageOptions,
+) {
+  upsertAuthProfile({
+    profileId: "aisa:default",
+    credential: buildApiKeyCredential("aisa", key, undefined, options),
+    agentDir: resolveAuthAgentDir(agentDir),
+  });
+}
+
 export function setQianfanApiKey(
   key: SecretInput,
   agentDir?: string,

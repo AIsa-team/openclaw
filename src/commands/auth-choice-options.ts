@@ -313,6 +313,11 @@ const BASE_AUTH_CHOICE_OPTIONS: ReadonlyArray<AuthChoiceOption> = [
     label: "Coding Plan API Key for Global/Intl (subscription)",
     hint: "Endpoint: coding-intl.dashscope.aliyuncs.com",
   },
+  {
+    value: "aisa-api-key",
+    label: "AIsa API key",
+    hint: "China's top AI models — Qwen, Kimi, GLM, DeepSeek, MiniMax — one API key",
+  },
   { value: "custom-api-key", label: "Custom Provider" },
 ];
 

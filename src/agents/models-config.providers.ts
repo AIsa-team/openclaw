@@ -81,6 +81,17 @@ type SecretDefaults = {
 
 const ENV_VAR_NAME_RE = /^[A-Z_][A-Z0-9_]*$/;
 
+export const AISA_BASE_URL = "https://api.aisa.one/v1";
+export const AISA_DEFAULT_MODEL_ID = "kimi-k2.5";
+const AISA_DEFAULT_CONTEXT_WINDOW = 256000;
+const AISA_DEFAULT_MAX_TOKENS = 32768;
+const AISA_DEFAULT_COST = {
+  input: 0,
+  output: 0,
+  cacheRead: 0,
+  cacheWrite: 0,
+};
+
 function normalizeApiKeyConfig(value: string): string {
   const trimmed = value.trim();
   const match = /^\$\{([A-Z0-9_]+)\}$/.exec(trimmed);
@@ -707,6 +718,7 @@ const SIMPLE_IMPLICIT_PROVIDER_LOADERS: ImplicitProviderLoader[] = [
   withApiKey("modelstudio", async ({ apiKey }) => ({ ...buildModelStudioProvider(), apiKey })),
   withApiKey("openrouter", async ({ apiKey }) => ({ ...buildOpenrouterProvider(), apiKey })),
   withApiKey("nvidia", async ({ apiKey }) => ({ ...buildNvidiaProvider(), apiKey })),
+  withApiKey("aisa", async ({ apiKey }) => ({ ...buildAisaProvider(), apiKey })),
   withApiKey("kilocode", async ({ apiKey }) => ({
     ...(await buildKilocodeProviderWithDiscovery()),
     apiKey,
@@ -828,6 +840,69 @@ async function resolvePluginImplicitProviders(
     );
   }
   return Object.keys(discovered).length > 0 ? discovered : undefined;
+}
+
+export function buildAisaProvider(): ProviderConfig {
+  return {
+    baseUrl: AISA_BASE_URL,
+    api: "openai-completions",
+    models: [
+      {
+        id: "minimax-m2.1",
+        name: "MiniMax M2.1",
+        reasoning: false,
+        input: ["text"],
+        cost: { input: 0.21, output: 0.84, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 200000,
+        maxTokens: 32768,
+      },
+      {
+        id: "kimi-k2.5",
+        name: "Kimi K2.5",
+        reasoning: true,
+        input: ["text"],
+        cost: { input: 0.4018, output: 2.1077, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 256000,
+        maxTokens: 32768,
+      },
+      {
+        id: "qwen3-max",
+        name: "Qwen3 Max",
+        reasoning: true,
+        input: ["text", "image"],
+        cost: { input: 0.72, output: 3.6, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 256000,
+        maxTokens: 32768,
+      },
+      {
+        id: "glm-5",
+        name: "GLM-5",
+        reasoning: true,
+        input: ["text", "image"],
+        cost: { input: 1.0, output: 3.2, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 200000,
+        maxTokens: 32768,
+      },
+      {
+        id: "deepseek-v3.2",
+        name: "DeepSeek V3.2",
+        reasoning: true,
+        input: ["text"],
+        cost: { input: 0.28, output: 0.42, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 128000,
+        maxTokens: 32768,
+      },
+      {
+        id: "seed-1-8-251228",
+        name: "Seed 1.8",
+        reasoning: true,
+        input: ["text"],
+        cost: { input: 0.225, output: 1.8, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 128000,
+        maxTokens: 32768,
+      },
+    ],
+  };
 }
 
 export async function resolveImplicitProviders(

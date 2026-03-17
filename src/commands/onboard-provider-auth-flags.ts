@@ -28,6 +28,7 @@ type OnboardProviderAuthOptionKey = keyof Pick<
   | "modelstudioApiKey"
   | "volcengineApiKey"
   | "byteplusApiKey"
+  | "aisaApiKey"
 >;
 
 export type OnboardProviderAuthFlag = {
@@ -221,5 +222,12 @@ export const ONBOARD_PROVIDER_AUTH_FLAGS: ReadonlyArray<OnboardProviderAuthFlag>
     cliFlag: "--byteplus-api-key",
     cliOption: "--byteplus-api-key <key>",
     description: "BytePlus API key",
+  },
+  {
+    optionKey: "aisaApiKey",
+    authChoice: "aisa-api-key",
+    cliFlag: "--aisa-api-key",
+    cliOption: "--aisa-api-key <key>",
+    description: "AIsa API key",
   },
 ];

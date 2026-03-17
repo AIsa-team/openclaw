@@ -1,4 +1,4 @@
-import { normalizeApiKeyInput, validateApiKeyInput } from "./auth-choice.api-key.js";
+import { formatApiKeyPreview, normalizeApiKeyInput, validateApiKeyInput } from "./auth-choice.api-key.js";
 import {
   normalizeSecretInputModeInput,
   createAuthChoiceAgentModelNoter,
@@ -18,17 +18,27 @@ import {
   GOOGLE_GEMINI_DEFAULT_MODEL,
 } from "./google-gemini-model-default.js";
 import {
+  AISA_DEFAULT_MODEL_REF,
+  applyAisaConfig,
+  applyAisaProviderConfig,
   applyAuthProfileConfig,
   applyCloudflareAiGatewayConfig,
   applyCloudflareAiGatewayProviderConfig,
+  applyQianfanConfig,
+  applyQianfanProviderConfig,
   applyZaiConfig,
   applyZaiProviderConfig,
   CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF,
+  QIANFAN_DEFAULT_MODEL_REF,
+  setAisaApiKey,
   setCloudflareAiGatewayConfig,
   setGeminiApiKey,
+  setQianfanApiKey,
   setZaiApiKey,
   ZAI_DEFAULT_MODEL_REF,
 } from "./onboard-auth.js";
+import { resolveEnvApiKey } from "../agents/model-auth.js";
+import { applyDefaultModelChoice } from "./auth-choice.default-model.js";
 import type { AuthChoice } from "./onboard-types.js";
 import { detectZaiEndpoint } from "./zai-endpoint-detect.js";
 
@@ -316,6 +326,118 @@ export async function applyAuthChoiceApiProviders(
 
   if (authChoice === "huggingface-api-key") {
     return applyAuthChoiceHuggingface({ ...params, authChoice });
+  }
+
+  if (authChoice === "qianfan-api-key") {
+    let hasCredential = false;
+    if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "qianfan") {
+      setQianfanApiKey(normalizeApiKeyInput(params.opts.token), params.agentDir);
+      hasCredential = true;
+    }
+
+    if (!hasCredential) {
+      await params.prompter.note(
+        [
+          "Get your API key at: https://console.bce.baidu.com/qianfan/ais/console/apiKey",
+          "API key format: bce-v3/ALTAK-...",
+        ].join("\n"),
+        "QIANFAN",
+      );
+    }
+    const envKey = resolveEnvApiKey("qianfan");
+    if (envKey) {
+      const useExisting = await params.prompter.confirm({
+        message: `Use existing QIANFAN_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})?`,
+        initialValue: true,
+      });
+      if (useExisting) {
+        setQianfanApiKey(envKey.apiKey, params.agentDir);
+        hasCredential = true;
+      }
+    }
+    if (!hasCredential) {
+      const key = await params.prompter.text({
+        message: "Enter QIANFAN API key",
+        validate: validateApiKeyInput,
+      });
+      setQianfanApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
+    }
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "qianfan:default",
+      provider: "qianfan",
+      mode: "api_key",
+    });
+    {
+      const applied = await applyDefaultModelChoice({
+        config: nextConfig,
+        setDefaultModel: params.setDefaultModel,
+        defaultModel: QIANFAN_DEFAULT_MODEL_REF,
+        applyDefaultConfig: applyQianfanConfig,
+        applyProviderConfig: applyQianfanProviderConfig,
+        noteDefault: QIANFAN_DEFAULT_MODEL_REF,
+        noteAgentModel,
+        prompter: params.prompter,
+      });
+      nextConfig = applied.config;
+      agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+    }
+    return { config: nextConfig, agentModelOverride };
+  }
+
+  if (authChoice === "aisa-api-key") {
+    let hasCredential = false;
+    if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "aisa") {
+      setAisaApiKey(normalizeApiKeyInput(params.opts.token), params.agentDir);
+      hasCredential = true;
+    }
+
+    if (!hasCredential) {
+      await params.prompter.note(
+        [
+          "AIsa provides unified access to China's top AI models (Qwen, Kimi, GLM, DeepSeek, MiniMax) with one API key.",
+          "Get your API key at: https://marketplace.aisa.one/",
+        ].join("\n"),
+        "AIsa",
+      );
+    }
+    const envKey = resolveEnvApiKey("aisa");
+    if (envKey) {
+      const useExisting = await params.prompter.confirm({
+        message: `Use existing AISA_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})?`,
+        initialValue: true,
+      });
+      if (useExisting) {
+        setAisaApiKey(envKey.apiKey, params.agentDir);
+        hasCredential = true;
+      }
+    }
+    if (!hasCredential) {
+      const key = await params.prompter.text({
+        message: "Enter AIsa API key",
+        validate: validateApiKeyInput,
+      });
+      setAisaApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
+    }
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "aisa:default",
+      provider: "aisa",
+      mode: "api_key",
+    });
+    {
+      const applied = await applyDefaultModelChoice({
+        config: nextConfig,
+        setDefaultModel: params.setDefaultModel,
+        defaultModel: AISA_DEFAULT_MODEL_REF,
+        applyDefaultConfig: applyAisaConfig,
+        applyProviderConfig: applyAisaProviderConfig,
+        noteDefault: AISA_DEFAULT_MODEL_REF,
+        noteAgentModel,
+        prompter: params.prompter,
+      });
+      nextConfig = applied.config;
+      agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+    }
+    return { config: nextConfig, agentModelOverride };
   }
 
   return null;
