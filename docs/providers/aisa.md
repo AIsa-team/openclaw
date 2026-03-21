@@ -1,5 +1,5 @@
 ---
-summary: "Unified access to China's top AI models (Qwen, Kimi, GLM, MiniMax) via AIsa"
+summary: "Unified access to China's top AI models (Qwen, Kimi, GLM, DeepSeek, MiniMax) via AIsa"
 read_when:
   - You want access to Chinese AI models with one API key
   - You want AIsa setup guidance
@@ -8,11 +8,11 @@ title: "AIsa"
 
 # AIsa — China's Top AI Models, One API Key
 
-**AIsa** provides production-grade access to China's best AI models through a single API key and OpenAI-compatible endpoint. One key for Qwen, Kimi, GLM, and MiniMax — no per-provider signup required.
+**AIsa** provides production-grade access to China's best AI models through a single API key and OpenAI-compatible endpoint. One key for Qwen, Kimi, GLM, DeepSeek, Seed, and MiniMax — no per-provider signup required.
 
 ## Why AIsa
 
-- **One key for all Chinese models** — Qwen, Kimi, GLM, MiniMax — no more juggling 4+ accounts.
+- **One key for all Chinese models** — Qwen, Kimi, GLM, DeepSeek, Seed, MiniMax — no more juggling 6+ accounts.
 - **OpenAI-compatible** — Standard `/v1` endpoints, works with any OpenAI SDK.
 - **No daily request limits** — Production-ready, unlike free tiers.
 - **Unified billing** — Single account for all providers.
@@ -21,10 +21,12 @@ title: "AIsa"
 
 | Model ID        | Name         | Developer   | Best For                    | Context | Vision |
 | --------------- | ------------ | ----------- | --------------------------- | ------- | ------ |
-| `minimax-m2.1`  | MiniMax M2.1 | MiniMax     | Fast text tasks             | 200k    | No     |
-| `kimi-k2.5`     | Kimi K2.5    | Moonshot AI | Long-context tasks (default)| 256k    | No     |
-| `qwen3-max`     | Qwen3 Max    | Alibaba     | Complex reasoning           | 256k    | Yes    |
-| `glm-5`         | GLM-5        | Zhipu AI    | Agentic engineering         | 200k    | Yes    |
+| `minimax-m2.1`      | MiniMax M2.1 | MiniMax     | Fast text tasks             | 200k    | No     |
+| `seed-1-8-251228`   | Seed 1.8     | ByteDance   | Cost-effective reasoning    | 128k    | No     |
+| `deepseek-v3.2`     | DeepSeek V3.2| DeepSeek    | Budget reasoning            | 128k    | No     |
+| `kimi-k2.5`         | Kimi K2.5    | Moonshot AI | Long-context tasks (default)| 256k    | No     |
+| `qwen3-max`         | Qwen3 Max    | Alibaba     | Complex reasoning           | 256k    | Yes    |
+| `glm-5`             | GLM-5        | Zhipu AI    | Agentic engineering         | 200k    | Yes    |
 
 ## Setup
 
@@ -63,6 +65,8 @@ openclaw tui
 | **Long context**        | `kimi-k2.5`        | 256k context, great value (default)  |
 | **Complex reasoning**   | `qwen3-max`        | Strongest Qwen model                 |
 | **Agentic workflows**   | `glm-5`            | Built for agentic engineering        |
+| **Budget reasoning**    | `deepseek-v3.2`    | Cheapest reasoning model             |
+| **Cost-effective**      | `seed-1-8-251228`  | Strong reasoning, low cost           |
 | **Fast text**           | `minimax-m2.1`     | Lowest cost, quick processing        |
 
 Change your default model anytime:
